@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"  
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans  
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">  
+
+	<!-- 定义数据源的信息 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>jdbc:mysql://localhost/oa_database?useUnicode=true&amp;characterEncoding=utf-8</value>
+		</property>
+		<property name="user">
+			<value>root</value>
+		</property>
+		<property name="password">
+			<value>123456</value>
+		</property>
+		<property name="maxPoolSize">
+			<value>80</value>
+		</property>
+		<property name="minPoolSize">
+			<value>1</value>
+		</property>
+		<property name="initialPoolSize">
+			<value>1</value>
+		</property>
+		<property name="maxIdleTime">
+			<value>20</value>
+		</property>
+	</bean>
+
+	<!--定义Hibernate的SessionFactory -->
+	<!-- SessionFactory使用的数据源为上面的数据源 -->
+	<!-- 指定了Hibernate的映射文件和配置信息 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref local="dataSource" />
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>org.cxb.oa.bean.User</value>
+				<value>org.cxb.oa.bean.ProcessInfo</value>
+				<value>org.cxb.oa.bean.Doc</value>
+				<value>org.cxb.oa.bean.Approve</value>
+				<value>org.cxb.oa.bean.Dep</value>
+				<value>org.cxb.oa.bean.OuterDoc</value>
+				<value>org.cxb.oa.bean.OuterApprove</value>
+				<value>org.cxb.oa.bean.OuterProcessInfo</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.jdbc.batch_size">20</prop>
+				<prop key="hibernate.connection.autocommit">true</prop>
+			</props>
+		</property>
+	</bean>
+	
+    <!-- DAO组件 -->
+	<bean id="userDao" class="org.cxb.oa.dao.impl.UserDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="docDao" class="org.cxb.oa.dao.impl.DocDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="depDao" class="org.cxb.oa.dao.impl.DepDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="processDao" class="org.cxb.oa.dao.impl.ProcessDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="approveDao" class="org.cxb.oa.dao.impl.ApproveDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="outerDocDao" class="org.cxb.oa.dao.impl.OuterDocDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="outerApproveDao" class="org.cxb.oa.dao.impl.OuterApproveDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="outerProcessDao" class="org.cxb.oa.dao.impl.OuterProcessDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 业务逻辑组件 -->
+	<bean id="userManager" class="org.cxb.oa.service.impl.UserManagerImpl">
+		<property name="dao" ref="userDao"></property>
+	</bean>
+	<bean id="docManager" class="org.cxb.oa.service.impl.DocManagerImpl">
+		<property name="docDao" ref="docDao"></property>
+		<property name="userDao" ref="userDao"></property>
+		<property name="depDao" ref="depDao"></property>
+		<property name="processDao" ref="processDao"></property>
+		<property name="approveDao" ref="approveDao"></property>
+		<property name="approveManager" ref="approveManager"></property>
+		<property name="processManager" ref="processManager"></property>
+	</bean>
+	<bean id="depManager" class="org.cxb.oa.service.impl.DepManagerImpl">
+	    <property name="depDao" ref="depDao"></property>
+	</bean>
+	<bean id="processManager" class="org.cxb.oa.service.impl.ProcessManagerImpl">
+	    <property name="processDao" ref="processDao"></property>
+	    <property name="docDao" ref="docDao"></property>
+	</bean>
+	<bean id="approveManager" class="org.cxb.oa.service.impl.ApproveManagerImpl">
+	    <property name="approveDao" ref="approveDao"></property>
+	    <property name="docDao" ref="docDao"></property>
+	    <property name="processDao" ref="processDao"></property>
+	</bean>
+	<bean id="outerDocManager" class="org.cxb.oa.service.impl.OuterDocManagerImpl">
+	    <property name="outerDocDao" ref="outerDocDao"></property>
+	    <property name="userDao" ref="userDao"></property>
+	    <property name="depDao" ref="depDao"></property>
+	    <property name="outerApproveManager" ref="outerApproveManager"></property>
+	    <property name="outerProcessManager" ref="outerProcessManager"></property>
+	</bean>
+	<bean id="outerApproveManager" class="org.cxb.oa.service.impl.OuterApproveManagerImpl">
+	    <property name="outerApproveDao" ref="outerApproveDao"></property>
+	</bean>
+	<bean id="outerProcessManager" class="org.cxb.oa.service.impl.OuterProcessManagerImpl">
+	    <property name="outerProcessDao" ref="outerProcessDao"></property>
+	</bean>
+	
+	
+	<!-- 配置Action bean -->
+	<bean id="loginAction" class="org.cxb.oa.action.LoginAction">
+		<property name="userManager" ref="userManager"></property>
+	</bean>
+	<bean id="ajax_loginAction" class="org.cxb.oa.action.LoginActionAjax">
+	    <property name="userManager" ref="userManager"></property>
+	</bean>
+	<bean id="logoutAction" class="org.cxb.oa.action.LogoutAction">
+	</bean>
+	<bean id="logDocAction" class="org.cxb.oa.action.LogDocAction">
+	    <property name="docService" ref="docManager"></property>
+	</bean>
+	<bean id="depNames" class="org.cxb.oa.action.DepNamesAction">
+	    <property name="depManager" ref="depManager"></property>
+	</bean>
+	<bean id="userNames" class="org.cxb.oa.action.UserNameAction">
+	    <property name="userManager" ref="userManager"></property>
+	</bean>
+	<bean id="myInnerDoc" class="org.cxb.oa.action.MyInnerDocAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="myInnerDocDetail" class="org.cxb.oa.action.MyInnerDocDetailAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="downloadAction" class="org.cxb.oa.action.FileDownloadAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="myInnerApprove" class="org.cxb.oa.action.MyInnerApproveAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="innerApproveDetail" class="org.cxb.oa.action.InnerApproveDetailAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="innerApprove" class="org.cxb.oa.action.InnerApproveAction">
+	    <property name="approveManager" ref="approveManager"></property>
+	</bean>
+	<bean id="myInnerProcess" class="org.cxb.oa.action.MyInnerProcessAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="innerProcessDetail" class="org.cxb.oa.action.InnerProcessDetailAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="innerProcess" class="org.cxb.oa.action.InnerProcessAction">
+	    <property name="processManager" ref="processManager"></property>
+	</bean>
+	<bean id="innerDocSelect" class="org.cxb.oa.action.InnerDocSelectAction">
+	    <property name="docManager" ref="docManager"></property>
+	</bean>
+	<bean id="logOuterDocAction" class="org.cxb.oa.action.LogOuterDocAction">
+	    <property name="outerDocManager" ref="outerDocManager"></property>
+	</bean>
+	<bean id="changePassAction" class="org.cxb.oa.action.ChangePassAction">
+	    <property name="userManager" ref="userManager"></property>
+	</bean>
+	
+	<!-- 配置事务管理器 -->
+        <bean id="transactionManager"
+          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+             <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+        
+        <!-- 配置事务增强Bean，指定事务管理器 -->
+        <tx:advice id="txAdvice" transaction-manager="transactionManager">
+            <tx:attributes>
+               <!-- 所有以get开头的方法是只读的 -->
+               <tx:method name="get*" read-only="true"/>
+               <!-- 其他方法使用默认的事务设置，指定超时时长为5秒 -->
+               <tx:method name="*" isolation="DEFAULT" propagation="REQUIRED" timeout="5"/>
+            </tx:attributes>
+        </tx:advice>
+        
+        <!-- AOP配置元素 -->
+        <aop:config>
+           <!-- 配置一个切入点 -->
+           <aop:pointcut expression="bean(userManager) or bean(depManager) or bean(docManager) or bean(processManager) or bean(approveManager) or bean(outerDocManager) or bean(outerApproveManager) or bean(outerProcessManager)" id="myPointcut"/>
+           <!-- 指定在myPointcut切入点应用txAdvice事务增强处理 -->
+           <aop:advisor advice-ref="txAdvice" pointcut-ref="myPointcut"/>
+        </aop:config>
+</beans>

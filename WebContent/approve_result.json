@@ -1,0 +1,7 @@
+[{
+    "approve_text":"同意",
+    "approve_value":true
+},{
+    "approve_text":"不同意",
+    "approve_value":false
+}]

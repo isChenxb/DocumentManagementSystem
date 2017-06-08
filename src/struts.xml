@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE struts PUBLIC  
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"  
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+	<constant name="struts.custom.i18n.resources" value="mess" />
+	<constant name="struts.devMode" value="true" />
+    
+    <package name="jsonAction" extends="json-default">
+		<action name="depNames" class="depNames">
+			<result type="json">
+				<param name="root">json</param>
+			</result>
+		</action>
+		
+		<action name="userNames" class="userNames">
+			<result type="json">
+				<param name="root">json</param>
+			</result>
+		</action>
+		
+		<action name="getMyInnerDocs" class="myInnerDoc">
+		    <result type="json">
+				<param name="root">json</param>
+			</result>
+		</action>
+		
+		<action name="getMyInnerApprove" class="myInnerApprove">
+		    <result type="json">
+				<param name="root">json</param>
+			</result>
+		</action>
+		
+		<action name="getMyInnerProcess" class="myInnerProcess">
+		    <result type="json">
+				<param name="root">json</param>
+			</result>
+		</action>
+		
+		<action name="innerDocSelect_*" method="{1}"  class="innerDocSelect">
+		    <result type="json">
+				<param name="root">json</param>
+			</result>
+		</action>
+	</package>
+    
+	<package name="default" extends="struts-default">
+        <!-- 定义拦截器 -->
+        <interceptors>
+            <interceptor name="loginInterceptor" class="org.cxb.oa.interceptor.LoginInterceptor">
+            </interceptor>
+            <interceptor-stack name="loginStack">
+                <interceptor-ref name="defaultStack"></interceptor-ref>
+                <interceptor-ref name="loginInterceptor"></interceptor-ref>
+            </interceptor-stack>
+        </interceptors>
+        <!-- 配置默认拦截器栈 -->
+        <default-interceptor-ref name="loginStack"></default-interceptor-ref>
+        <!-- 定义全局结果 -->
+        <global-results>
+            <result name="login">/WEB-INF/content/LoginForm.jsp</result>
+        </global-results>
+        
+		<action name="login" class="loginAction">
+		    <interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="success">/WEB-INF/content/index.jsp</result>
+			<result name="input">/WEB-INF/content/LoginForm.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
+		</action>
+
+		<action name="Ajax_login" class="ajax_loginAction">
+		    <interceptor-ref name="defaultStack"></interceptor-ref>
+			<result type="stream">
+				<!-- 指定stream生成的相应的数据类型 -->
+				<param name="contentType">text/html</param>
+				<!-- 指定由getResult()方法返回输出结果的InputStream -->
+				<param name="inputName">result</param>
+			</result>
+		</action>
+
+		<action name="logout" class="logoutAction">
+			<result name="success">/WEB-INF/content/LoginForm.jsp</result>
+		</action>
+		
+		<action name="logDocAction" class="logDocAction">
+		    <!-- 设置文件上传路径 -->
+		    <param name="savePath">/uploadFiles</param>
+		    <result type="stream">
+				<!-- 指定stream生成的相应的数据类型 -->
+				<param name="contentType">text/html</param>
+				<!-- 指定由getResult()方法返回输出结果的InputStream -->
+				<param name="inputName">result</param>
+			</result>
+		    <!-- <result name="success">/WEB-INF/content/logDocSuccess.jsp</result> -->
+		</action>
+		
+		<action name="logOuterDocAction" class="logOuterDocAction">
+		    <!-- 设置文件上传路径 -->
+		    <param name="savePath">/uploadFiles</param>
+		    <result type="stream">
+				<!-- 指定stream生成的相应的数据类型 -->
+				<param name="contentType">text/html</param>
+				<!-- 指定由getResult()方法返回输出结果的InputStream -->
+				<param name="inputName">result</param>
+			</result>
+		</action>
+		
+		<action name="innerApprove" class="innerApprove">
+		    <result type="stream">
+				<!-- 指定stream生成的相应的数据类型 -->
+				<param name="contentType">text/html</param>
+				<!-- 指定由getResult()方法返回输出结果的InputStream -->
+				<param name="inputName">result</param>
+			</result>
+		</action>
+		
+		<action name="changePassAction" class="changePassAction">
+		    <result type="stream">
+				<!-- 指定stream生成的相应的数据类型 -->
+				<param name="contentType">text/html</param>
+				<!-- 指定由getResult()方法返回输出结果的InputStream -->
+				<param name="inputName">result</param>
+			</result>
+		</action>
+		
+		<action name="innerProcess_*" method="{1}" class="innerProcess">
+		    <result type="stream">
+				<!-- 指定stream生成的相应的数据类型 -->
+				<param name="contentType">text/html</param>
+				<!-- 指定由getResult()方法返回输出结果的InputStream -->
+				<param name="inputName">result</param>
+			</result>
+		</action>
+		
+		<action name="myInnerDocDetail" class="myInnerDocDetail">
+		    <result name="success">/WEB-INF/content/myInnerDoc_detail.jsp</result>
+		</action>
+		
+		<action name="innerApproveDetail" class="innerApproveDetail">
+		    <result name="success">/WEB-INF/content/inner_approve.jsp</result>
+		</action>
+		
+		<action name="innerProcessDetail" class="innerProcessDetail">
+		    <result name="success">/WEB-INF/content/inner_process.jsp</result>
+		</action>
+		
+		<action name="download" class="downloadAction">
+		    <param name="inputPath">/uploadFiles</param>
+		    <result type="stream">
+		       <!-- 指定下载文件的类型 -->
+		       <param name="contentType">application/octet-stream</param>
+		       <!-- 指定由getTargetFile()方法返回被下载文件的InputStream -->
+		       <param name="inputName">targetFile</param>
+		       <param name="contentDisposition">filename="${fileName}"</param>
+		       <!-- 指定缓冲区大小 -->
+		       <param name="bufferSize">4096</param>
+		    </result>
+		</action>
+
+		<action name="*">
+			<result>/WEB-INF/content/{1}.jsp</result>
+		</action>
+	</package>
+</struts>  
